@@ -11,6 +11,7 @@ BASE_TAG=14.2.0-debian-10-r
 INPUT_REGISTRY=docker.io
 INPUT_ACCOUNT=bitnami
 REPOSITORY=postgresql-repmgr
+HELM_REPOSITORY=postgresql-ha
 
 test()
 {
@@ -24,7 +25,7 @@ test()
     helm repo update
 
     # Install postgresql
-    helm install ${HELM_RELEASE} ${INPUT_ACCOUNT}/${REPOSITORY} --namespace ${NAMESPACE} --set image.tag=${TAG} --set image.repository=${IMAGE_REPOSITORY} -f ${SCRIPTPATH}/overrides.yml
+    helm install ${HELM_RELEASE} ${INPUT_ACCOUNT}/${HELM_REPOSITORY} --namespace ${NAMESPACE} --set image.tag=${TAG} --set image.repository=${IMAGE_REPOSITORY} -f ${SCRIPTPATH}/overrides.yml
 
     # waiting for pod to be ready
     echo "waiting for pod to be ready"
