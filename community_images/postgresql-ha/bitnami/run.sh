@@ -10,7 +10,7 @@ SCRIPTPATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 BASE_TAG=14.2.0-debian-10-r
 INPUT_REGISTRY=docker.io
 INPUT_ACCOUNT=bitnami
-REPOSITORY=postgresql-ha
+REPOSITORY=postgresql-repmgr
 
 test()
 {
