@@ -29,16 +29,30 @@ test()
 
     # waiting for pod to be ready
     echo "waiting for pod to be ready"
-    kubectl wait pods ${HELM_RELEASE}-0 -n ${NAMESPACE} --for=condition=ready --timeout=10m
+    kubectl wait pods ${HELM_RELEASE}-postgresql-0 -n ${NAMESPACE} --for=condition=ready --timeout=10m
 
-    # get postgresql passwordk
-    POSTGRES_PASSWORD=$(kubectl get secret --namespace ${NAMESPACE} ${HELM_RELEASE} -o jsonpath="{.data.postgres-password}" | base64 --decode)
+    # get postgresql-ha password
+    POSTGRES_PASSWORD=$(kubectl get secret --namespace ${NAMESPACE} ${HELM_RELEASE}-postgresql -o jsonpath="{.data.postgresql-password}" | base64 --decode)
+
+    # create postgresql-ha client
+    kubectl run -n ${NAMESPACE} ${HELM_RELEASE}-client \
+        --restart='Never' \
+        --env="PGPASSWORD=${POSTGRES_PASSWORD}" \
+        --image ${INPUT_REGISTRY}/${INPUT_ACCOUNT}/${REPOSITORY}:${TAG} \
+        --command -- /bin/bash -c "while true; do sleep 30; done;"
+
+    # wait for postgresql-ha client to be ready
+    kubectl wait pods ${HELM_RELEASE}-client -n ${NAMESPACE} --for=condition=ready --timeout=10m
 
     # copy test.psql into container
-    kubectl -n ${NAMESPACE} cp ${SCRIPTPATH}/../../common/tests/test.psql ${HELM_RELEASE}-0:/tmp/test.psql
+    kubectl -n ${NAMESPACE} cp ${SCRIPTPATH}/../../common/tests/test.psql ${HELM_RELEASE}-client:/tmp/test.psql
 
     # run script
-    kubectl -n ${NAMESPACE} exec -i ${HELM_RELEASE}-0 -- /bin/bash -c "PGPASSWORD=${POSTGRES_PASSWORD} psql --host ${HELM_RELEASE} -U postgres -d postgres -p 5432 -f /tmp/test.psql"
+    kubectl -n ${NAMESPACE} exec -i ${HELM_RELEASE}-client \
+        -- /bin/bash -c "psql --host ${HELM_RELEASE}-pgpool -U postgres -d postgres -p 5432 -f /tmp/test.psql"
+
+    # delete client container
+    kubectl -n ${NAMESPACE} delete pod ${HELM_RELEASE}-client
 
     # bring down helm install
     helm delete ${HELM_RELEASE} --namespace ${NAMESPACE}
