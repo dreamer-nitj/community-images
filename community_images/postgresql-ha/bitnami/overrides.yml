@@ -3,8 +3,6 @@ image:
   pullPolicy: Always
 postgresql:
   containerSecurityContext:
-    enabled: true
-    runAsUser: 1001
     capabilities:
       add: ["SYS_PTRACE"]
   resources:
@@ -16,8 +14,6 @@ postgresql:
         memory: 1024Mi
 pgpool:
   containerSecurityContext:
-    enabled: true
-    runAsUser: 1001
     capabilities:
       add: ["SYS_PTRACE"]
   resources:
