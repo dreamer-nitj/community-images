@@ -1,7 +1,7 @@
 image:
   pullSecrets: ["rf-regcred"]
   pullPolicy: Always
-primary:
+postgresql:
   containerSecurityContext:
     enabled: true
     runAsUser: 1001
@@ -14,7 +14,7 @@ primary:
       requests:
         cpu: 500m
         memory: 1024Mi
-readReplicas:
+pgpool:
   containerSecurityContext:
     enabled: true
     runAsUser: 1001

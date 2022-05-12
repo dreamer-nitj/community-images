@@ -25,7 +25,7 @@ test()
     helm repo update
 
     # Install postgresql
-    helm install ${HELM_RELEASE} ${INPUT_ACCOUNT}/${HELM_REPOSITORY} --namespace ${NAMESPACE} --set image.tag=${TAG} --set image.repository=${IMAGE_REPOSITORY} -f ${SCRIPTPATH}/overrides.yml
+    helm install ${HELM_RELEASE} ${INPUT_ACCOUNT}/${HELM_REPOSITORY} --namespace ${NAMESPACE} --set postgresql.image.tag=${TAG} --set postgresql.image.repository=${IMAGE_REPOSITORY} -f ${SCRIPTPATH}/overrides.yml
 
     # waiting for pod to be ready
     echo "waiting for pod to be ready"
